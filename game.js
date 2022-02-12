@@ -43,7 +43,7 @@ scene("game", () => {
         width: 20,
         height: 20,
         '=': [sprite('block'), solid()],
-        '$': [sprite('coin')],
+        '$': [sprite('coin'), 'coin'],
         '%': [sprite('surprise'), solid(), 'coin-surprise'],
         '*': [sprite('surprise'), solid(), 'mushroom-surprise'],
         '}': [sprite('unboxed'), solid()],
@@ -52,7 +52,7 @@ scene("game", () => {
         '-': [sprite('pipe-top-left'), solid(), scale(0.5)],
         '+': [sprite('pipe-top-right'), solid(), scale(0.5)],
         '^': [sprite('evil-shroom'), solid()],
-        '#': [sprite('mushroom'), solid()],
+        '#': [sprite('mushroom'), solid(), 'mushroom', body()],
     }
 
     const gameLevel = addLevel(map, levelCfg)
@@ -105,20 +105,32 @@ scene("game", () => {
         origin('bot')
     ])
 
+    action('mushroom', (m) => {
+        m.move(10,0)
+    })
+
     player.on("headbump", (obj) => {
         if(obj.is('coin-surprise')){
             gameLevel.spawn('$', obj.gridPos.sub(0,1))
             destroy(obj)
             gameLevel.spawn('}', obj.gridPos.sub(0,0))
         }
-    })
-
-    player.on("headbump", (obj) => {
         if(obj.is('mushroom-surprise')){
             gameLevel.spawn('#', obj.gridPos.sub(0,1))
             destroy(obj)
             gameLevel.spawn('}', obj.gridPos.sub(0,0))
         }
+    })
+
+    player.collides('mushroom', (m) => {
+        destroy(m)
+        player.biggify(6)
+    })
+
+    player.collides('coin', (c) => {
+        destroy(c)
+        scoreLabel.value++
+        scoreLabel.text = scoreLabel.value
     })
 
     keyDown('left', () => {
