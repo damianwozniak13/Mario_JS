@@ -27,21 +27,41 @@ loadSprite('pipe-top-right', 'hj2GK4n.png')
 loadSprite('pipe-bottom-left', 'c1cYSbt.png')
 loadSprite('pipe-bottom-right', 'nqQ79eI.png')
 
+loadSprite('blue-block', 'fVscIbn.png')
+loadSprite('blue-brick', '3e5YRQd.png')
+loadSprite('blue-steel', 'gqVoI2b.png')
+loadSprite('blue-evil-mushroom', 'SvV4ueD.png')
+loadSprite('blue-surprise', 'RMqCc1G.png')
+
 scene("game", ({ level, score }) => {
     layers(['bg', 'obj', 'ui'], 'obj')
 
-    const map = [
-        '                                      ',
-        '                                      ',
-        '                                      ',
-        '                                      ',
-        '                                      ',
-        '       %    =*=%=                     ',
-        '                                      ',
-        '                             -+       ',
-        '                    ^    ^   ()       ',
-        '===============================  =====',
-    ]
+    const maps = [
+        [
+            '                                      ',
+            '                                      ',
+            '                                      ',
+            '                                      ',
+            '                                      ',
+            '       %    =*=%=                     ',
+            '                                      ',
+            '                             -+       ',
+            '                    ^    ^   ()       ',
+            '===============================  =====',
+        ],
+        [
+            ';                                      ;',
+            ';                                      ;',
+            ';                                      ;',
+            ';                                      ;',
+            ';                                      ;',
+            ';       @@@@@@           xx            ;',
+            ';                       xxx            ;',
+            ';                      xxxx  x       -+;',
+            ';                 z z xxxxx  x       ();',
+            '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+        ]
+    ]  
 
     const levelCfg = {
         width: 20,
@@ -55,11 +75,16 @@ scene("game", ({ level, score }) => {
         ')': [sprite('pipe-bottom-right'), solid(), scale(0.5)],
         '-': [sprite('pipe-top-left'), solid(), scale(0.5), 'pipe'],
         '+': [sprite('pipe-top-right'), solid(), scale(0.5), 'pipe'],
-        '^': [sprite('evil-shroom'), solid(), 'dangerous'],
+        '^': [sprite('evil-shroom'), solid(), 'dangerous', body()],
         '#': [sprite('mushroom'), solid(), 'mushroom', body()],
+        '!': [sprite('blue-block'), solid(), scale(0.5)],
+        ';': [sprite('blue-brick'), solid(), scale(0.5)],
+        'z': [sprite('blue-evil-mushroom'), solid(), scale(0.5), 'dangerous', body()],
+        '@': [sprite('blue-surprise'), solid(), scale(0.5), 'coin-surprise'],
+        'x': [sprite('blue-steel'), solid(), scale(0.5)],
     }
 
-    const gameLevel = addLevel(map, levelCfg)
+    const gameLevel = addLevel(maps[level], levelCfg)
     
     const scoreLabel = add([
         text(score),
@@ -76,10 +101,10 @@ scene("game", ({ level, score }) => {
     {
         let timer = 0
         let isBig = false
+        CURRENT_JUMP_FORCE = JUMP_FORCE
         return{
             update(){
                 if(isBig){
-                    CURRENT_JUMP_FORCE = BIG_JUMP_FORCE
                     timer -= dt()
                     if(timer <= 0){
                         this.smallify()
@@ -97,6 +122,7 @@ scene("game", ({ level, score }) => {
             },
             biggify(time){
                 this.scale = vec2(2)
+                CURRENT_JUMP_FORCE = BIG_JUMP_FORCE
                 timer = time
                 isBig = true
             }
@@ -164,7 +190,7 @@ scene("game", ({ level, score }) => {
     player.collides('pipe', () => {
         keyPress('down', () => {
             go('game', {
-                level: (level + 1),
+                level: (level + 1) % maps.length,
                 score: scoreLabel.value
             })
         })
