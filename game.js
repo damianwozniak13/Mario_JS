@@ -26,7 +26,7 @@ loadSprite('pipe-top-right', 'hj2GK4n.png')
 loadSprite('pipe-bottom-left', 'c1cYSbt.png')
 loadSprite('pipe-bottom-right', 'nqQ79eI.png')
 
-scene("game", () => {
+scene("game", ({score}) => {
     layers(['bg', 'obj', 'ui'], 'obj')
 
     const map = [
@@ -54,18 +54,18 @@ scene("game", () => {
         ')': [sprite('pipe-bottom-right'), solid(), scale(0.5)],
         '-': [sprite('pipe-top-left'), solid(), scale(0.5)],
         '+': [sprite('pipe-top-right'), solid(), scale(0.5)],
-        '^': [sprite('evil-shroom'), solid()],
+        '^': [sprite('evil-shroom'), solid(), 'dangerous'],
         '#': [sprite('mushroom'), solid(), 'mushroom', body()],
     }
 
     const gameLevel = addLevel(map, levelCfg)
     
     const scoreLabel = add([
-        text('test'),
+        text(score),
         pos(30,6),
         layer('ui'),
         {
-            value: 'test',
+            value: score,
         }
     ])
 
@@ -138,6 +138,12 @@ scene("game", () => {
         scoreLabel.text = scoreLabel.value
     })
 
+    const ENEMY_SPEED = 20
+
+    action('dangerous', (d) => {
+        d.move(-ENEMY_SPEED, 0)
+    })
+
     player.collides('dangerous', (d) => {
         go('lose', {score: scoreLabel.value})
     })
@@ -157,4 +163,8 @@ scene("game", () => {
     })
 })
 
-start("game")
+scene('lose', ({ score }) => {
+    add([text(score, 32), origin('center'), pos(width()/2, height()/2)])
+})
+
+start("game", {score: 0})
