@@ -10,6 +10,7 @@ const MOVE_SPEED = 120
 const JUMP_FORCE = 360
 const BIG_JUMP_FORCE = 550
 let CURRENT_JUMP_FORCE = JUMP_FORCE
+let isJumping = true
 
 
 loadRoot('https://i.imgur.com/')
@@ -145,7 +146,12 @@ scene("game", ({score}) => {
     })
 
     player.collides('dangerous', (d) => {
-        go('lose', {score: scoreLabel.value})
+        if(isJumping){
+            destroy(d)
+        }
+        else{
+            go('lose', {score: scoreLabel.value})
+        }       
     })
 
     keyDown('left', () => {
@@ -156,8 +162,15 @@ scene("game", ({score}) => {
         player.move(MOVE_SPEED, 0)
     })
 
+    player.action(() => {
+        if(player.grounded()){
+            isJumping = false
+        }
+    })
+
     keyPress('space', () => {
         if(player.grounded()){
+            isJumping = true
             player.jump(CURRENT_JUMP_FORCE)
         }
     })
