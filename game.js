@@ -138,6 +138,10 @@ scene("game", () => {
         scoreLabel.text = scoreLabel.value
     })
 
+    player.collides('dangerous', (d) => {
+        go('lose', {score: scoreLabel.value})
+    })
+
     keyDown('left', () => {
         player.move(-MOVE_SPEED, 0)
     })
